@@ -21,3 +21,21 @@ export const fetchMovies = async (endpoint) => {
     throw error;
   }
 };
+
+export const fetchMoviesBySearch = async (searchTerm) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/search/movie?query=${encodeURIComponent(
+        searchTerm
+      )}&include_adult=false&include_video=false&language=en-US&page=1`,
+      options
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch movies by search:", error);
+    throw error;
+  }
+};

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchMovies } from "./services/moviesApis";
+import { fetchMovies, fetchMoviesBySearch } from "./services/moviesApis";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
@@ -46,6 +46,32 @@ const App = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    // Fetch movies by search term
+    if (searchTerm.trim() === "") {
+      setMovies([]); // Clear movies if search term is empty
+      return; // Exit early if search term is empty
+    }
+    const fetchMovies = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const searchedMovies = await fetchMoviesBySearch(searchTerm);
+        if (searchedMovies && searchedMovies?.results) {
+          console.log("Searched movies:", searchedMovies.results);
+          setMovies(searchedMovies.results || []);
+        }
+      } catch (error) {
+        console.error("Error fetching searched movies:", error);
+        setError("Failed to fetch specified movies. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMovies();
+  }, [searchTerm]);
+
+  // Render the main application layout
   return (
     <main>
       <div className="pattern" />
