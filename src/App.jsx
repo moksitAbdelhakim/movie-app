@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchMovies, fetchMoviesBySearch } from "./services/moviesApis";
+import { fetchPopularMovies, fetchMoviesBySearch } from "./services/moviesApis";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
@@ -16,59 +16,40 @@ const App = () => {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    // Fetch movies when the component mounts
-
+  const fetchMovies = async (fetchFn, signal) => {
     setIsLoading(true);
-    setError(null); // Reset error state before fetching new data
-    const fetchData = async () => {
-      try {
-        const movies = await fetchMovies(
-          "/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
-        );
-
-        // For safety, we can check movies before setting state
-        if (movies && movies.results) {
-          console.log("Fetched movies:", movies.results);
-          setMovies(movies?.results || []);
-          setIsLoading(false);
-        } else {
-          console.error("No movies found in the response.");
-          setError("No movies found. Please try again later!");
-        }
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-        setError("Failed to fetch movies. Please try again later.");
-      } finally {
-        setIsLoading(false);
+    setError(null); // Rest error state before fetching new data
+    try {
+      const movies = await fetchFn(signal);
+      if (movies && movies.results) {
+        setMovies(movies.results || []);
+      } else {
+        console.error("No movies found in the response!");
+        setError("No movies found in the response. Please try again later!");
       }
-    };
-    fetchData();
-  }, []);
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Error fetching movies, type:", error.name, "message:", error.message);
+        setError("Failed to fetch movies. Please try again later.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Fetch movies by search term
     if (searchTerm.trim() === "") {
-      setMovies([]); // Clear movies if search term is empty
-      return; // Exit early if search term is empty
+      fetchMovies((signal) =>
+        fetchPopularMovies(
+          "/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc",
+          { signal }
+        )
+      );
+    } else {
+      const controller = new AbortController();
+      fetchMovies((signal) => fetchMoviesBySearch(searchTerm, { signal }), controller.signal);
+      return () => controller.abort();
     }
-    const fetchMovies = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const searchedMovies = await fetchMoviesBySearch(searchTerm);
-        if (searchedMovies && searchedMovies?.results) {
-          console.log("Searched movies:", searchedMovies.results);
-          setMovies(searchedMovies.results || []);
-        }
-      } catch (error) {
-        console.error("Error fetching searched movies:", error);
-        setError("Failed to fetch specified movies. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMovies();
   }, [searchTerm]);
 
   // Render the main application layout
