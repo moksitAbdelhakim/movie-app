@@ -1,3 +1,4 @@
+import starIcon from "../assets/icons/star.svg";
 /**
  * A presentation component to display a movie card with its poster, title,
  * average rating, original language, and release year.
@@ -25,7 +26,7 @@ const MovieCard = ({ movie }) => {
 
         <div className="content">
           <div className="rating">
-            <img src="/src/assets/icons/star.svg" alt="Star Icon" />
+            <img src={starIcon} alt="Star Icon" />
             <span>{movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}</span>
           </div>
 

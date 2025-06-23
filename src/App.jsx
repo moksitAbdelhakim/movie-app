@@ -4,6 +4,8 @@ import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
 
+import hero from "./assets/images/hero.png";
+
 /**
  * The root component of the application, which renders a full-screen
  * background pattern.
@@ -59,7 +61,7 @@ const App = () => {
       <div className="wrapper">
         <header>
           <img src="/logo.svg" alt="Logo" className="logo" />
-          <img src="/src/assets/images/hero.png" alt="Hero Banner" />
+          <img src={hero} alt="Hero Banner" />
           <h1>
             Find <span className="text-gradient">Movies</span> You’ll Love Without the Hassle
           </h1>
