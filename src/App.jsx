@@ -3,7 +3,7 @@ import { fetchPopularMovies, fetchMoviesBySearch } from "./services/moviesApis";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
-
+import { UpdateSearchTerm } from "./services/appwrite";
 import hero from "./assets/images/hero.png";
 
 /**
@@ -25,6 +25,10 @@ const App = () => {
       const movies = await fetchFn(signal);
       if (movies && movies.results) {
         setMovies(movies.results || []);
+        // Update the search term in Appwrite database
+        if (searchTerm.trim() !== "" && movies.results.length > 0) {
+          await UpdateSearchTerm(searchTerm, movies.results[0]);
+        }
       } else {
         console.error("No movies found in the response!");
         setError("No movies found in the response. Please try again later!");
