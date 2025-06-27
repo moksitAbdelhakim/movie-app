@@ -43,3 +43,14 @@ export const UpdateSearchTerm = async (searchTerm, movie) => {
     console.error("Error updating search term, type:", error.name, "message:", error.message);
   }
 };
+
+// Fetch popular movies from the Appwrite database
+// I move error handling to the component level
+export const getTrendingMovies = async () => {
+  const response = await database.listDocuments(VITE_APPWRITE_DATABASE_ID, VITE_APPWRITE_COLLECTION_ID, [
+    Query.limit(5),
+    Query.orderDesc("count"),
+  ]);
+
+  return response.documents;
+};

@@ -3,7 +3,7 @@ import { fetchPopularMovies, fetchMoviesBySearch } from "./services/moviesApis";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
-import { UpdateSearchTerm } from "./services/appwrite";
+import { getTrendingMovies, UpdateSearchTerm } from "./services/appwrite";
 import hero from "./assets/images/hero.png";
 import { useDebounce } from "./hooks/useDebounce";
 
@@ -17,6 +17,7 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
   const [movies, setMovies] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm);
 
@@ -46,6 +47,16 @@ const App = () => {
     }
   };
 
+  // Fetch popular movies or search results based on the search term
+  const fetchTrendingMovies = async () => {
+    try {
+      const movies = await getTrendingMovies();
+      setTrendingMovies(movies);
+    } catch (error) {
+      console.error("Error fetching trending movies, type:", error.name, "message:", error.message);
+    }
+  };
+
   useEffect(() => {
     if (searchTerm.trim() === "") {
       fetchMovies((signal) =>
@@ -61,6 +72,10 @@ const App = () => {
     }
   }, [debouncedSearchTerm]);
 
+  useEffect(() => {
+    fetchTrendingMovies();
+  }, []);
+
   // Render the main application layout
   return (
     <main>
@@ -74,6 +89,21 @@ const App = () => {
           </h1>
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
+
+        {trendingMovies.length > 0 && (
+          <section className="trending">
+            <h2>Trending Movies</h2>
+            <p> Check out the most popular movies right now!</p>
+            <ul>
+              {trendingMovies.map((movie, index) => (
+                <li key={movie.$id}>
+                  <p>{index + 1}</p>
+                  <img src={movie.poster_url} alt={movie.title} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="all-movies">
           <h2>All Movies</h2>
