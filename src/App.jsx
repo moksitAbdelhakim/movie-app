@@ -5,6 +5,7 @@ import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
 import { UpdateSearchTerm } from "./services/appwrite";
 import hero from "./assets/images/hero.png";
+import { useDebounce } from "./hooks/useDebounce";
 
 /**
  * The root component of the application, which renders a full-screen
@@ -17,10 +18,12 @@ const App = () => {
   const [error, setError] = useState(null);
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   const fetchMovies = async (fetchFn, signal) => {
     setIsLoading(true);
     setError(null); // Rest error state before fetching new data
+
     try {
       const movies = await fetchFn(signal);
       if (movies && movies.results) {
@@ -56,7 +59,7 @@ const App = () => {
       fetchMovies((signal) => fetchMoviesBySearch(searchTerm, { signal }), controller.signal);
       return () => controller.abort();
     }
-  }, [searchTerm]);
+  }, [debouncedSearchTerm]);
 
   // Render the main application layout
   return (
