@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import { fetchPopularMovies, fetchMoviesBySearch } from "./services/moviesApis";
+import { fetchPopularMovies, searchMovies, fetchTrendingMovies, logSearchTerm } from "./services/apis.js";
+import { useDebounce } from "./hooks/useDebounce";
+
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
-import { getTrendingMovies, UpdateSearchTerm } from "./services/appwrite";
 import hero from "./assets/images/hero.png";
-import { useDebounce } from "./hooks/useDebounce";
 
 /**
- * The root component of the application, which renders a full-screen
- * background pattern.
+ * The root component of the application, responsible for managing state and rendering the main layout.
  *
  * @returns {ReactElement} The JSX element representing the root component.
  */
@@ -31,7 +30,7 @@ const App = () => {
         setMovies(movies.results || []);
         // Update the search term in Appwrite database
         if (searchTerm.trim() !== "" && movies.results.length > 0) {
-          await UpdateSearchTerm(searchTerm, movies.results[0]);
+          await logSearchTerm(searchTerm, movies.results[0]);
         }
       } else {
         console.error("No movies found in the response!");
@@ -48,9 +47,9 @@ const App = () => {
   };
 
   // Fetch popular movies or search results based on the search term
-  const fetchTrendingMovies = async () => {
+  const getTrendsMovies = async (signal) => {
     try {
-      const movies = await getTrendingMovies();
+      const movies = await fetchTrendingMovies({ signal });
       setTrendingMovies(movies);
     } catch (error) {
       console.error("Error fetching trending movies, type:", error.name, "message:", error.message);
@@ -67,13 +66,15 @@ const App = () => {
       );
     } else {
       const controller = new AbortController();
-      fetchMovies((signal) => fetchMoviesBySearch(searchTerm, { signal }), controller.signal);
+      fetchMovies((signal) => searchMovies(searchTerm, { signal }), controller.signal);
       return () => controller.abort();
     }
   }, [debouncedSearchTerm]);
 
   useEffect(() => {
-    fetchTrendingMovies();
+    const controller = new AbortController();
+    getTrendsMovies();
+    return () => controller.abort();
   }, []);
 
   // Render the main application layout
