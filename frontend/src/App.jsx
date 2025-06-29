@@ -80,6 +80,11 @@ const App = () => {
     }
   };
 
+  // Reset page to 1 only when the search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm]);
+
   useEffect(() => {
     if (searchTerm.trim() === "") {
       fetchMovies((signal) => fetchPopularMovies(currentPage, { signal }));
