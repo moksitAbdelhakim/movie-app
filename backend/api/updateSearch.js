@@ -18,7 +18,12 @@ export default async function handler(req, res) {
   try {
     // Allow only authorized origin and POST requests
     res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
-    res.setHeader("Access-Control-Allow-Methods", "POST");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+
+    // Handle preflight request
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method Not Allowed" });
     }
