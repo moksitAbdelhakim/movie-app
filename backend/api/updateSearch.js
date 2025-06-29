@@ -18,6 +18,7 @@ export default async function handler(req, res) {
   try {
     // Allow only authorized origin and POST requests
     res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
 
     // Handle preflight request
