@@ -10,6 +10,7 @@ const BACKEND_URL_BASE = import.meta.env.VITE_BACKEND_URL;
  */
 export const fetchPopularMovies = async ({ signal }) => {
   const response = await fetch(`${BACKEND_URL_BASE}/popular`, {
+    method: "GET",
     signal,
   });
   if (!response.ok) {
@@ -21,7 +22,10 @@ export const fetchPopularMovies = async ({ signal }) => {
 };
 
 export const searchMovies = async (searchTerm, { signal }) => {
-  const response = await fetch(`${BACKEND_URL_BASE}/search?query=${encodeURIComponent(searchTerm)}`, { signal });
+  const response = await fetch(`${BACKEND_URL_BASE}/search?query=${encodeURIComponent(searchTerm)}`, {
+    method: "GET",
+    signal,
+  });
   if (!response.ok) {
     const errorText = await response.text();
     console.error("Error fetching movies by search:", response.status, errorText);
@@ -31,7 +35,10 @@ export const searchMovies = async (searchTerm, { signal }) => {
 };
 
 export const fetchTrendingMovies = async ({ signal }) => {
-  const response = await fetch(`${BACKEND_URL_BASE}/trending`, { signal });
+  const response = await fetch(`${BACKEND_URL_BASE}/trending`, {
+    method: "GET",
+    signal,
+  });
   if (!response.ok) {
     const errorText = await response.text();
     console.error("Error fetching trending movies:", response.status, errorText);
