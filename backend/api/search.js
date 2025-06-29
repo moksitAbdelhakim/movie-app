@@ -11,6 +11,14 @@ import fetch from "node-fetch";
 
 export default async function handler(req, res) {
   try {
+    // Allow only authorized origin and GET requests
+    res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    if (req.method !== "GET") {
+      return res.status(405).json({ error: "Method Not Allowed" });
+    }
+
     //  Validate and sanitize input
     const { query } = req.query;
     if (!query || typeof query !== "string") {
@@ -21,24 +29,15 @@ export default async function handler(req, res) {
     }
 
     // Fetch from TMDB API
-    const response = await fetch(
-      `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
-        query
-      )}`,
-      {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
-        },
-      }
-    );
+    const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}`, {
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
+      },
+    });
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        "Error fetching data from TMDB:",
-        response.status,
-        errorText
-      );
+      console.error("Error fetching data from TMDB:", response.status, errorText);
       return res.status(response.status).json({
         error: "Error fetching data from TMDB",
         message: response.statusText,

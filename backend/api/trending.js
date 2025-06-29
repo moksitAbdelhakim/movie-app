@@ -1,11 +1,8 @@
 import { Client, Databases, ID, Query } from "appwrite";
 
-const { APPWRITE_PROJECT_ID, APPWRITE_DATABASE_ID, APPWRITE_COLLECTION_ID } =
-  process.env;
+const { APPWRITE_PROJECT_ID, APPWRITE_DATABASE_ID, APPWRITE_COLLECTION_ID } = process.env;
 
-const client = new Client()
-  .setEndpoint("https://fra.cloud.appwrite.io/v1")
-  .setProject(APPWRITE_PROJECT_ID);
+const client = new Client().setEndpoint("https://fra.cloud.appwrite.io/v1").setProject(APPWRITE_PROJECT_ID);
 const database = new Databases(client, APPWRITE_DATABASE_ID);
 
 /**
@@ -17,11 +14,18 @@ const database = new Databases(client, APPWRITE_DATABASE_ID);
  */
 export default async function handler(req, res) {
   try {
-    const response = await database.listDocuments(
-      APPWRITE_DATABASE_ID,
-      APPWRITE_COLLECTION_ID,
-      [Query.limit(5), Query.orderDesc("count")]
-    );
+    // Allow only authorized origin and GET requests
+    res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    if (req.method !== "GET") {
+      return res.status(405).json({ error: "Method Not Allowed" });
+    }
+    // Fetch top 5 trending movies from Appwrite database
+    const response = await database.listDocuments(APPWRITE_DATABASE_ID, APPWRITE_COLLECTION_ID, [
+      Query.limit(5),
+      Query.orderDesc("count"),
+    ]);
     res.status(200).json(response.documents);
   } catch (error) {
     console.error("Error in /api/trending:", error);

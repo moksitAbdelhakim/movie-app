@@ -42,6 +42,7 @@ export const fetchTrendingMovies = async ({ signal }) => {
 
 export const logSearchTerm = async (searchTerm, movie) => {
   const response = await fetch(`${BACKEND_URL_BASE}/updateSearch`, {
+    method: "POST",
     body: JSON.stringify({
       searchTerm,
       movie,

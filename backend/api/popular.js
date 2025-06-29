@@ -8,6 +8,14 @@ import fetch from "node-fetch";
  */
 export default async function handler(req, res) {
   try {
+    // Allow only authorized origin and GET requests
+    res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    if (req.method !== "GET") {
+      return res.status(405).json({ error: "Method Not Allowed" });
+    }
+
     // Fetch popular movies from TMDB API
     const response = await fetch(
       "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc",
