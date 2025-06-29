@@ -8,9 +8,12 @@ const BACKEND_URL_BASE = import.meta.env.VITE_BACKEND_URL;
  * @returns {Promise<Object>} The JSON response from the backend.
  * @throws {Error} If the response is not ok.
  */
-export const fetchPopularMovies = async ({ signal }) => {
-  const response = await fetch(`${BACKEND_URL_BASE}/popular`, {
+export const fetchPopularMovies = async (page, { signal }) => {
+  const response = await fetch(`${BACKEND_URL_BASE}/popular?page=${page}`, {
     method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
     signal,
   });
   if (!response.ok) {
@@ -21,8 +24,8 @@ export const fetchPopularMovies = async ({ signal }) => {
   return response.json();
 };
 
-export const searchMovies = async (searchTerm, { signal }) => {
-  const response = await fetch(`${BACKEND_URL_BASE}/search?query=${encodeURIComponent(searchTerm)}`, {
+export const searchMovies = async (searchTerm, page, { signal }) => {
+  const response = await fetch(`${BACKEND_URL_BASE}/search?query=${encodeURIComponent(searchTerm)}&page=${page}`, {
     method: "GET",
     signal,
   });

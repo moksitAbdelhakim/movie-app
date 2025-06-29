@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   try {
     // Allow only authorized origin and GET requests
     res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
 
     // Handle preflight requests
@@ -19,10 +20,17 @@ export default async function handler(req, res) {
     if (req.method !== "GET") {
       return res.status(405).json({ error: "Method Not Allowed" });
     }
-
+    // Validate and sanitize input
+    const page = parseInt(req.query.page, 10);
+    if (!page || isNaN(page) || page < 1 || page > 50) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid page number.",
+      });
+    }
     // Fetch popular movies from TMDB API
     const response = await fetch(
-      "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc",
+      `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`,
       {
         headers: {
           accept: "application/json",

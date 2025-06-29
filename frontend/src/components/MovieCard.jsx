@@ -1,4 +1,6 @@
 import starIcon from "../assets/icons/star.svg";
+import noPoster from "../assets/images/no-poster.png";
+
 /**
  * A presentation component to display a movie card with its poster, title,
  * average rating, original language, and release year.
@@ -16,9 +18,7 @@ const MovieCard = ({ movie }) => {
   return (
     <div className="movie-card">
       <img
-        src={
-          movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : "/src/assets/images/no-poster.png"
-        }
+        src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : noPoster}
         alt={movie.title}
       />
       <div className="mt-4">
